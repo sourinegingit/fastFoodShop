@@ -12,9 +12,11 @@ const products: Product[] = [
 
   { id: 9, name: 'برگر مرغ', description: 'برگر مرغ تازه با نان خانگی', price: 90000, imageUrl: '../src/assets/burger3.jpg' },
 ];
+type ProductListProps = {
+    addToCart: (product: Product) => void;
+  };
 
-
-const ProductList = () => {
+const ProductList = ({ addToCart }: ProductListProps) => {
   return (
     <div className="flex flex-wrap gap-6 p-4 justify-center">
       {products.map((product) => (
@@ -22,12 +24,14 @@ const ProductList = () => {
           key={product.id}
           className="w-full sm:w-80 md:w-72 lg:w-64 bg-gray-500 flex flex-col items-center p-4 rounded-lg shadow-lg"
         >
-          <img src="../../src/assets/burger1.jpg" className="w-full h-48 object-cover rounded-md" alt={product.name} />
+          <img src={product.imageUrl} alt={product.name} />
           <h3 className="font-semibold text-lg mt-4">{product.name}</h3>
           <h6 className="font-semibold text-md text-gray-300 mt-2">{product.description}</h6>
           <div className="flex justify-between items-center w-full mt-4">
             <p className="font-semibold text-xl">{product.price} تومان</p>
             <button
+                          onClick={() => { addToCart(product); }}
+
               className="bg-orange-500 text-white py-2 px-4 rounded-md mt-2 sm:mt-0"
             >
               افزودن به سبد خرید
