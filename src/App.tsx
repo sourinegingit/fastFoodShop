@@ -1,17 +1,16 @@
+import { useState } from "react";
+import "./App.css";
+import Footer from "./components/Footer";
+import Header from "./components/Header";
 
-import { useState } from 'react';
-import './App.css'
-import Footer from './components/Footer'
-import Header from './components/Header'
-
-import ProductList from './components/ProductList';
-import { CartItem, Product, User } from './cartItem';
-import { toast } from 'react-toastify';
-import Cart from './components/Cart';
+import ProductList from "./components/ProductList";
+import { CartItem, Product, User } from "./cartItem";
+import { toast, ToastContainer } from "react-toastify";
+import Cart from "./components/Cart";
+import OrderForm from "./components/OrderForm";
 
 function App() {
   const [cart, setCart] = useState<CartItem[]>(() => {
-
     // Load cart from localStorage
     const storedCart = localStorage.getItem("cart");
     return storedCart ? JSON.parse(storedCart) : [];
@@ -39,8 +38,9 @@ function App() {
       localStorage.setItem("cart", JSON.stringify(updatedCart));
 
       // Display toast notification
-      toast.success(`${product.name} به سبد خرید اضافه شد!`);
-
+      toast.success(`${product.name} به سبد خرید اضافه شد!`, {
+        position: "top-right",  
+      });
       return updatedCart;
     });
   };
@@ -63,26 +63,63 @@ function App() {
     localStorage.setItem("cart", JSON.stringify(newCart));
   };
 
+  // Handle order submission
+  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const newUser = Object.fromEntries(formData.entries()) as unknown as User;
+
+    // Validate the form data
+    if (!newUser.name || !newUser.address || !newUser.phone) {
+      toast.error("لطفاً همه اطلاعات را پر کنید!");
+      return;
+    }
+
+    // Update user state with the new user
+    setUser(newUser);
+
+    const orderNumber = Math.floor(Math.random() * 10000);
+    toast.success(
+      `سفارش شما ثبت شد. شماره سفارش: ${orderNumber}  زمان تقریبی تحویل: 30 دقیقه`
+    );
+    event.currentTarget.reset();
+  };
   const handleCheckout = () => {
     setShowModal(true);
   };
   return (
     <div className="flex mx-auto bg-gray-300  flex-wrap gap-14 p-4 md:flex">
       <div className="w-full">
-        <Header/>
-       
-        <ProductList addToCart={addToCart}  />
-         <Cart
+        <Header />
+
+        <ProductList addToCart={addToCart} />
+        <Cart
           cart={cart}
           removeFromCart={removeFromCart}
           updateQuantity={updateQuantity}
           handleCheckout={handleCheckout}
         />
-      <Footer/>
-
-  </div>
-</div>
-  )
+           {showModal && (
+          <OrderForm
+            onSubmit={handleSubmit}
+            currentUser={user}
+            closeModal={() => setShowModal(false)}
+          />
+        )}
+        
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={true}
+          newestOnTop={true}
+          closeButton={true}
+          rtl={true}
+          className="toast"
+        />
+        <Footer />
+      </div>
+    </div>
+  );
 }
 
-export default App
+export default App;
